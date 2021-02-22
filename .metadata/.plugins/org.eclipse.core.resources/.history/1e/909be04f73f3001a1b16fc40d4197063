@@ -1,0 +1,11 @@
+#include "SolarSys.hpp"
+
+SolarSys::SolarSys()
+{
+    //ctor
+}
+
+SolarSys::~SolarSys()
+{
+    //dtor
+}

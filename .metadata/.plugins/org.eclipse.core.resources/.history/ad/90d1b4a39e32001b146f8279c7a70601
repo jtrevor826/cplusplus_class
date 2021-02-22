@@ -1,0 +1,99 @@
+/*
+ * Planet.cpp
+ *
+ *  Created on: Aug 19, 2020
+ *      Author: Family
+ */
+
+#include <string>
+#include <cstdio>
+#include "Planet.hpp"
+using namespace std;
+
+Planet::Planet(double positionx,double positiony,double kg,double velocityx,double velocityy, string nm):
+    mass{kg},posx{positionx},posy{positiony},velx{velocityx},vely{velocityy},name{nm}{
+}
+
+Planet::Planet(): mass{0.},posx{0.0},posy{0.0},velx{0.0},vely{0.0},name{"unknown"}{
+}
+
+Planet::Planet(const Planet& ori){
+    name=ori.name;
+    posx=ori.posx;
+    posy=ori.posy;
+    velx = ori.velx;
+    vely=ori.vely;
+    mass=ori.mass;
+}
+
+string Planet::getName(){
+	return name;
+}
+
+void Planet::setName(string name){
+	this->name=name;
+}
+
+double Planet::getPositionX(){
+	return posx;
+}
+
+double Planet::getPositionY(){
+	return posy;
+}
+
+void Planet::setPosition(double newPosX, double newPosY){
+	posx=newPosX;
+	posy=newPosY;
+}
+
+double Planet::getMass(){
+	return mass;
+}
+
+void Planet::setMass(double newMass){
+	mass=newMass;
+}
+
+double Planet::getVelocityX(){
+	return velx;
+}
+
+double Planet::getVelocityY(){
+	return vely;
+}
+
+void Planet::setVelocity(double newVelX, double newVelY){
+	velx=newVelX;
+	vely=newVelY;
+}
+
+string Planet::toString(){
+    string result;
+    char buffer[100];
+
+    result = name + "\n  ";
+    sprintf(buffer,"Position: ( %g, %g )\n  ",getPositionX(),getPositionY());
+    result += buffer;
+    sprintf(buffer,"Velocity: ( %g, %g )\n  ",velx, vely);
+    result += buffer;
+    sprintf(buffer,"Mass: %g kg\n",mass);
+    result += buffer;
+
+    return result;
+}
+
+string Planet::toCsv(){
+	string result;
+	    char buffer[100];
+
+	    result = "\"" + name + "\",";
+	    sprintf(buffer,"%g,%g,",getPositionX(),getPositionY());
+	    result += buffer;
+	    sprintf(buffer,"%g,%g,",velx, vely);
+	    result += buffer;
+	    sprintf(buffer,"%g\n",mass);
+	    result += buffer;
+
+	    return result;
+}

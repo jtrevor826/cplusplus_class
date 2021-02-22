@@ -1,0 +1,31 @@
+/*
+ * Planet.hpp
+ *
+ *  Created on: Aug 19, 2020
+ *      Author: Family
+ */
+#include <string>
+using namespace std;
+#ifndef PLANET_HPP_
+#define PLANET_HPP_
+
+class Planet{
+	private:
+	double mass;
+	double posx;
+	double posy;
+	double velx;
+	double vely;
+	string name;
+
+	public:
+	Planet();
+	Planet(double positionx,double positiony,double kg,double velocityx,double velocityy, string name);
+	string getName();
+	void setName(string name);
+	double getPosX();
+	double getPosY();
+	void setPos(double newPosX, double newPosY);
+};
+
+#endif /* PLANET_HPP_ */

@@ -1,0 +1,11 @@
+#include "SolarSys.hpp"
+
+SolarSys::SolarSys()
+{
+    Central = Planet();
+}
+
+SolarSys::~SolarSys()
+{
+    //dtor
+}

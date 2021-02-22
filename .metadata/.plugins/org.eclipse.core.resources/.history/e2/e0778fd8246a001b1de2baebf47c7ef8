@@ -1,0 +1,121 @@
+/*
+ * Complex.h
+ *
+ *  Created on: Feb 8, 2021
+ *      Author: Family
+ */
+
+#include <string>
+using namespace std;
+#ifndef COMPLEX_H_
+#define COMPLEX_H_
+
+class Complex{
+ private:
+ double real,
+        img;
+
+public:
+  Complex(){
+    real= 0.0;
+    img= 0.0;
+  }
+  Complex(double r, double i){
+    real=r;
+    img=i;
+  }
+
+  Complex(const Complex& o){
+   real = *o->getReal();
+    img = *o->getImaginary();
+  }
+
+  double getReal(){
+    return real;
+  }
+
+  double getImaginary(){
+    return img;
+  }
+
+// Complex *get(){
+//    return new Complex(this);
+//  }
+
+  void setReal(double r){
+    real=r;
+  }
+
+  void setImaginary(double i){
+    img=i;
+  }
+
+  void set(double r, double i){
+    real=r;
+    img=i;
+  }
+
+/*  Complex operator+(Complex rhs){
+    double r=real+rhs.getReal();
+    double i = img+rhs.getImaginary();
+    return Complex(r,i);
+  }
+
+  Complex operator+(double rhs){
+    double r=real+rhs;
+    return Complex(r,img);
+  }
+
+  Complex operator-(Complex rhs){
+    double r=real-rhs.getReal();
+    double i = img-rhs.getImaginary();
+    return Complex(r,i);
+  }
+
+  Complex operator-(double rhs){
+    double r=real-rhs;
+    return Complex(r,img);
+  }
+
+  Complex operator*(Complex rhs){
+    double r=real*rhs.getReal()-img*rhs.getImaginary();
+    double i = real*rhs.getImaginary()+img*rhs.getReal();
+    return Complex(r,i);
+  }
+
+  Complex operator*(double rhs){
+    double r = real*rhs;
+    double i = img*rhs;
+    return Complex(r,i);
+  }
+
+  Complex operator/(Complex rhs){
+    if (rhs.getReal() !=0 || rhs.getImaginary() != 0){
+      double r = (real*rhs.getReal()+img*rhs.getImaginary())/(rhs.getReal()*rhs.getReal()+rhs.getImaginary()*rhs.getImaginary());
+      double i = (img*rhs.getReal()-real*rhs.getImaginary())/(rhs.getReal()*rhs.getReal()+rhs.getImaginary()*rhs.getImaginary());
+    } else {
+      r = nan();
+      i = nan();
+    }
+    return Complex(r,i);
+  }
+
+  Complex operator/(double rhs){
+    if (rhs != 0){
+      double r = real/rhs;
+      double i = img/rhs;
+    } else {
+      r = nan();
+      i = nan();
+    }
+    return Complex(r,i);
+  }*/
+
+  string toString(){
+    char buffer[100];
+    sprintf(buffer,"%g+%gi",real,img);
+    return string(buffer);
+  }
+};
+
+#endif /* COMPLEX_H_ */

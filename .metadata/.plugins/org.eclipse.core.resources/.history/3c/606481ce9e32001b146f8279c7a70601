@@ -1,0 +1,143 @@
+#include <cmath>
+#include <iostream>
+#include <string>
+#include <cstdlib>
+#include <stdlib.h>
+#include "../../GLPlotPlanet/include/SolarSys.h"
+using namespace std;
+#define PI 3.14159265358979323846  /* pi */
+
+SolarSys::SolarSys(): name{"unknown"},Central{}, Satellite{}, forceG{}, timeInterval{1.}, currentTime{0.}
+{
+
+}
+
+SolarSys::SolarSys(string nm): name{nm},Central{}, Satellite{}, forceG{}, timeInterval{1.}, currentTime{0.}
+{
+
+
+}
+
+SolarSys::~SolarSys()
+{
+    //dtor
+}
+
+void SolarSys::getGravity(){
+    double bigGM = Central.getMass()*(double)(6.674e-11);
+    double dx, dy, dist2;
+//cout <<"in getGravity"<<endl;
+    forceG.clear();
+    for (unsigned int i=0; i < Satellite.size(); i++){
+    	dx=Satellite.at(i).getPositionX()-Central.getPositionX();
+        dy=Satellite.at(i).getPositionY()-Central.getPositionY();
+        dist2=dx*dx+dy*dy;
+        if (!(std::abs(dist2)<0.000001)){
+            forceG.push_back(bigGM/dist2); //We are actually calculating the acceleration, not the force.
+        }
+        else{
+        	forceG.push_back(0);
+        }
+    }
+}
+
+void SolarSys::updatePosition(){
+	double angle;
+	double acceleration;
+	getGravity();
+	for (unsigned int i=0; i < Satellite.size(); i++){
+        if (!(std::abs(Satellite.at(i).getPositionX())<0.1)){
+            angle = atan((Satellite.at(i).getPositionY())/(Satellite.at(i).getPositionX()));
+            if (Satellite.at(i).getPositionX()<0){
+                angle += PI;
+            }
+        }else{
+            if (Satellite.at(i).getPositionY()>0){
+                angle=PI/2.0;
+            }else{
+                angle=-PI/2.0;
+            }
+        }
+        acceleration=forceG.at(i);
+        Satellite.at(i).setVelocity((Satellite.at(i)).getVelocityX()-acceleration*cos(angle)*timeInterval,(Satellite.at(i)).getVelocityY()-acceleration*sin(angle)*timeInterval);
+        Satellite.at(i).setPosition((Satellite.at(i)).getPositionX()+(Satellite.at(i)).getVelocityX()*timeInterval,(Satellite.at(i)).getPositionY()+Satellite.at(i).getVelocityY()*timeInterval);
+	}
+	currentTime+=timeInterval;
+}
+
+void SolarSys::addSatellite(Planet body){
+    //cout <<"addSatellite"<<endl;
+	Satellite.push_back(Planet(body));
+}
+
+void SolarSys::removeSatellite(string planetName){
+    //cout <<"in removeSatellite"<<endl;
+	for (unsigned int i=0; i<Satellite.size(); i++){
+	    if (Satellite.at(i).getName()==planetName){
+	    	Satellite.erase(Satellite.begin()+i);
+	    	break;
+	    }
+	}
+}
+
+void SolarSys::setCentralBody(Planet newCentralBody){
+	Central = newCentralBody;
+}
+
+void SolarSys::setInterval(double interval){
+	timeInterval=interval;
+}
+
+string SolarSys::toString(){
+	string output="Solar System: " + name + "  at Time: ";
+	output +="\n";
+	output += Central.toString();
+	for (unsigned int i = 0; i < Satellite.size(); i++){
+		output += "  " + Satellite.at(i).toString();
+	}
+	return output;
+}
+
+Planet SolarSys::getSatellite(string planetName){
+    //cout <<"in getSatellite"<<endl;
+	Planet result = Planet();
+	result.setName(planetName + " not found");
+	for (unsigned int i=0; i<Satellite.size(); i++){
+		if (Satellite.at(i).getName()==planetName){
+			result = Planet(Satellite.at(i));
+			break;
+        }
+	}
+	return result;
+}
+
+string SolarSys::toCsv(bool outputTitleLine){
+	string output;
+	if (outputTitleLine){
+		output="\"Planet\",\"X\",\"Y\",\"VelocityX\",\"VelocityY\",\"Mass\"\n";
+	}
+	else{
+		output="";
+	}
+    output += Central.toCsv();
+    for (unsigned int i = 0; i < Satellite.size(); i++){
+		output += Satellite.at(i).toCsv();
+	}
+	return output;
+}
+
+string SolarSys::toCSV(bool outputTitleLine, string name){
+    string output;
+    char buffer[100];
+    Planet tmp;
+	if (outputTitleLine){
+		output=name+"\n\"Time\",\"X\",\"Y\",\"VelocityX\",\"VelocityY\"\n";
+	}
+	else{
+		output="";
+	}
+    tmp = getSatellite(name);
+    sprintf(buffer,"%g,%g,%g,%g,%g\n",currentTime,tmp.getPositionX(),tmp.getPositionY(),tmp.getVelocityX(),tmp.getVelocityY());
+    output+=buffer;
+	return output;
+}

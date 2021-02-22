@@ -1,0 +1,325 @@
+//============================================================================
+// Name        : MyProject.cpp
+// Author      : Trevor
+// Version     :
+// Copyright   :
+// Description : Good description
+//============================================================================
+
+/*
+ * GLUT Shapes Demo
+ *
+ * Written by Nigel Stewart November 2003
+ *
+ * This program is test harness for the sphere, cone
+ * and torus shapes in GLUT.
+ *
+ * Spinning wireframe and smooth shaded shapes are
+ * displayed until the ESC or q key is pressed.  The
+ * number of geometry stacks and slices can be adjusted
+ * using the + and - keys.
+ */
+
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
+
+#include <windows.h>
+#include <math.h>
+#include <stdio.h>
+#include <iostream>
+#include <stdlib.h>
+#include <vector>
+#include "Planet.hpp"
+#include "SolarSys.hpp"
+
+struct Position{
+    double x;
+    double y;
+};
+SolarSys  SolSys;
+double sunRadius =6.9634e8; //radius in meters
+Planet mercury,
+       venus,
+	   earth;
+double LIMIT =75e10;
+double const PI=3.14159265358979;
+double delta;
+const int POINT_LIMIT=120;
+const int VENUS_LIMIT =5*POINT_LIMIT;
+const int EARTH_LIMIT = 10*POINT_LIMIT;
+double centerX = 0;
+double centerY = 0;
+int cycle, venusCycle, earthCycle=0;
+int valid, venusValid, earthValid=-1;
+struct Position pointsMercury[POINT_LIMIT],
+                pointsVenus[VENUS_LIMIT],
+				pointsEarth[EARTH_LIMIT],
+                pointsSun[20];
+
+
+/* GLUT callback Handlers */
+/*
+static void resize(int width, int height)
+{
+    const float ar = (float) width / (float) height;
+
+    glViewport(0, 0, width, height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glFrustum(-ar, ar, -1.0, 1.0, 2.0, 100.0);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity() ;
+
+}
+*/
+static void display(void)
+{
+    Position grid[20];
+    double deltaAngle = PI/10;
+
+    for(int i =0; i < 20; i++){
+        pointsSun[i].x= (SolSys.Central.getPositionX()+cos(i*deltaAngle)*sunRadius)/LIMIT;
+        pointsSun[i].y= (SolSys.Central.getPositionY()+sin(i*deltaAngle)*sunRadius)/LIMIT;
+    }
+
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glPushMatrix();
+
+    double delta = PI/10.0;
+    for(int r=0; r<20; r++){
+        grid[r].x= cos(r*delta)*1000000./LIMIT;
+        grid[r].y= sin(r*delta)*1000000./LIMIT;
+    }
+    //grid
+    glPointSize(0.05f);
+    glColor3f(0.2f, 0.2f,0.2f);
+    glBegin(GL_LINES);
+        glVertex2f(-1.0f,0.f);
+        glVertex2f(1.0f,0.f);
+    glEnd();
+
+    glBegin(GL_LINES);
+        glVertex2f(0.f,-1.0f);
+        glVertex2f(0.f,1.0f);
+    glEnd();
+
+    for(int t=5; t<40; t+=5){
+        glBegin(GL_LINE_LOOP);
+        for(int i =0; i <20; i++){
+            glVertex2f(grid[i].x*t, grid[i].y*t);
+        }
+        glEnd();
+    }
+
+    glColor3f(1.0f,1.f,0.f);
+    //central planet plot
+    glPointSize(0.50f);
+    glBegin(GL_POLYGON);
+    for (int i =0; i<20; i++){
+        glVertex2f(pointsSun[i].x-centerX/LIMIT, pointsSun[i].y-centerY/LIMIT);
+    }
+    glEnd();
+/*
+    glColor3f(0.8f, 0.0f, 0.0f);
+    glBegin(GL_LINE_LOOP);
+    for (int i =0; i<20; i++){
+        glVertex2f(pointsSun[i].x, pointsSun[i].y);
+    }
+    glEnd();
+*/
+    //satellite plots
+    pointsMercury[cycle].x=SolSys.Satellite.at(0).getPositionX();
+    pointsMercury[cycle].y=SolSys.Satellite.at(0).getPositionY();
+    if (valid<POINT_LIMIT){
+        valid++;
+    } else{
+        valid =POINT_LIMIT;
+    }
+
+    if(venusValid < VENUS_LIMIT){
+        venusValid++;
+    }else{
+        venusValid= VENUS_LIMIT;
+    }
+
+    /*if(earthValid < EARTH_LIMIT){
+        earthValid++;
+    }else{
+        earthValid= EARTH_LIMIT;
+    }*/
+    //SolSys.Satellite.at(2).addPoint();
+
+    //cout <<pointsMercury[cycle].x<<", "<<pointsMercury[cycle].y<<endl;
+    glPointSize(.5);
+    for (int i=0; i< valid; i++){
+    glBegin(GL_POINTS);
+        glColor3f(0.75f, 0.75f, 0.75f);
+        glVertex2f(pointsMercury[i].x-centerX/LIMIT, pointsMercury[i].y-centerY/LIMIT);
+    glEnd();
+    }
+    glPointSize(2.);
+    glBegin(GL_POINTS);
+        glColor3f(1.0f, 1.0f, 1.0f);
+        glVertex2f((pointsMercury[cycle].x-centerX)/LIMIT, (pointsMercury[cycle].y-centerY)/LIMIT);
+    glEnd();
+
+
+    pointsVenus[venusCycle].x=SolSys.Satellite.at(1).getPositionX()/LIMIT;
+    pointsVenus[venusCycle].y=SolSys.Satellite.at(1).getPositionY()/LIMIT;
+    glPointSize(.2f);
+    for(int j=0; j <venusValid; j++){
+    glBegin(GL_POINTS);
+        glColor3f(1.0f, 0.5f, 0.0f);
+        glVertex2f(pointsVenus[j].x-centerX/LIMIT, pointsVenus[j].y-centerY/LIMIT );
+    glEnd();
+    }
+     glPointSize(2.f);
+    glBegin(GL_POINTS);
+        glColor3f(1.0f, 1.0f, 1.0f);
+        glVertex2f(pointsVenus[venusCycle].x-centerX/LIMIT, pointsVenus[venusCycle].y-centerY/LIMIT );
+    glEnd();
+
+    SolSys.Satellite.at(2).addPoint();
+    glPointSize(.2f);
+    for(int j=0; j <SolSys.Satellite.at(2).getValid(); j++){
+    glBegin(GL_POINTS);
+        glColor3f(0.0f, 0.0f, 1.0f);
+        glVertex2f((float)SolSys.Satellite.at(2).getPoint(j).x-centerX/LIMIT, (float)SolSys.Satellite.at(2).getPoint(j).y-centerY/LIMIT );
+    glEnd();
+    }
+    glPointSize(2.f);
+    glBegin(GL_POINTS);
+        glColor3f(1.0f, 1.0f, 1.0f);
+        glVertex2f((float)SolSys.Satellite.at(2).getPoint(SolSys.Satellite.at(2).getCycle()).x-centerX/LIMIT, (float)SolSys.Satellite.at(2).getPoint(SolSys.Satellite.at(2).getCycle()).y-centerY/LIMIT );
+    glEnd();
+
+    glPopMatrix();
+    glutSwapBuffers();
+    SolSys.updatePosition();
+    cycle=(cycle+1)%POINT_LIMIT;
+    venusCycle=(venusCycle+1)%(VENUS_LIMIT);
+    //earthCycle=(earthCycle+1)%(EARTH_LIMIT);
+    //Sleep(25);
+}
+
+
+static void key(unsigned char key, int x, int y)
+{
+    switch (key)
+    {
+    case '+':
+    	LIMIT /= 10;
+        /*SolSys.Satellite.at(0).setVelocity(SolSys.Satellite.at(0).getVelocityX()*1.1,SolSys.Satellite.at(0).getVelocityY()*1.1);
+        SolSys.Satellite.at(1).setVelocity(SolSys.Satellite.at(1).getVelocityX()*1.1,SolSys.Satellite.at(1).getVelocityY()*1.1);*/
+        break;
+
+    case '-':
+    	LIMIT *= 10;
+        /*SolSys.Satellite.at(0).setVelocity(SolSys.Satellite.at(0).getVelocityX()/1.1,SolSys.Satellite.at(0).getVelocityY()/1.1);
+        SolSys.Satellite.at(1).setVelocity(SolSys.Satellite.at(1).getVelocityX()/1.1,SolSys.Satellite.at(1).getVelocityY()/1.1);*/
+        break;
+        case 'c':
+        case 'C':
+
+            break;
+        case 27 :
+        case 'q':
+            exit(0);
+            break;
+        case 'w':
+        	centerY += LIMIT/75;
+            //SolSys.Central.setPosition(SolSys.Central.getPositionX(),SolSys.Central.getPositionY()+10000000);
+            break;
+        case 's':
+        	centerY -= LIMIT/75;
+            //SolSys.Central.setPosition(SolSys.Central.getPositionX(),SolSys.Central.getPositionY()-10000000);
+            break;
+        case 'a':
+        	centerX -= LIMIT/75;
+            //SolSys.Central.setPosition(SolSys.Central.getPositionX()-10000000,SolSys.Central.getPositionY());
+            break;
+        case 'd':
+        	centerX += LIMIT/75;
+            //SolSys.Central.setPosition(SolSys.Central.getPositionX()+10000000,SolSys.Central.getPositionY());
+            break;
+    }
+
+    glutPostRedisplay();
+}
+
+static void idle(void)
+{
+    glutPostRedisplay();
+}
+/*
+const GLfloat light_ambient[]  = { 0.0f, 0.0f, 0.0f, 1.0f };
+const GLfloat light_diffuse[]  = { 1.0f, 1.0f, 1.0f, 1.0f };
+const GLfloat light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+const GLfloat light_position[] = { 2.0f, 5.0f, 5.0f, 0.0f };
+
+const GLfloat mat_ambient[]    = { 0.7f, 0.7f, 0.7f, 1.0f };
+const GLfloat mat_diffuse[]    = { 0.8f, 0.8f, 0.8f, 1.0f };
+const GLfloat mat_specular[]   = { 1.0f, 1.0f, 1.0f, 1.0f };
+const GLfloat high_shininess[] = { 100.0f };
+*/
+/* Program entry point */
+
+int main(int argc, char *argv[])
+{
+
+    SolSys = SolarSys("Solar System");
+    Planet cb = Planet(0.0,0.0,1.989e30,0.0,0.0,"Sun",1);
+    mercury = Planet(0.0, 5.8e10 ,3.285e23,48000.0,0.0,"Mercury",POINT_LIMIT);
+    venus = Planet(0.0,1.082e11,4.867E24,35000.0,0.0,"Venus",VENUS_LIMIT);
+    earth = Planet(0.0,1.496e12,2.5E15,29780.0,0.0,"Earth",EARTH_LIMIT);
+    SolSys.setCentralBody(cb);
+    SolSys.addSatellite(mercury);
+    SolSys.addSatellite(venus);
+    SolSys.addSatellite(earth);
+    SolSys.setInterval(1000);
+
+
+    glutInit(&argc, argv);
+    glutInitWindowSize(600,600);
+    //glutInitWindowPosition(10,10);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
+
+    glutCreateWindow("Solar System");
+
+    //glutReshapeFunc(resize);
+    glutDisplayFunc(display);
+    glutKeyboardFunc(key);
+    glutIdleFunc(idle);
+/*
+    glClearColor(1,1,1,1);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+
+    glEnable(GL_LIGHT0);
+    glEnable(GL_NORMALIZE);
+    glEnable(GL_COLOR_MATERIAL);
+    glEnable(GL_LIGHTING);
+
+    glLightfv(GL_LIGHT0, GL_AMBIENT,  light_ambient);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE,  light_diffuse);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+    glMaterialfv(GL_FRONT, GL_AMBIENT,   mat_ambient);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE,   mat_diffuse);
+    glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
+*/
+    delta = 600.0/LIMIT;
+    glutMainLoop();
+
+    return EXIT_SUCCESS;
+}

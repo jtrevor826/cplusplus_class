@@ -1,0 +1,17 @@
+/*
+ * Complex.h
+ *
+ *  Created on: Feb 8, 2021
+ *      Author: Family
+ */
+
+#ifndef COMPLEX_H_
+#define COMPLEX_H_
+
+class Complex {
+public:
+	Complex();
+	virtual ~Complex();
+};
+
+#endif /* COMPLEX_H_ */

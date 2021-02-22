@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Delete resource &apos;MyProject/Debug_with_Cross GCC&apos;" deleteContents="false" description="Delete resource &apos;MyProject/Debug_with_Cross GCC&apos;" element1="/MyProject/Debug_with_Cross GCC" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1597798247998"/>
+</session>

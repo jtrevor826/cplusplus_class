@@ -1,0 +1,18 @@
+/*
+ * Complex.cpp
+ *
+ *  Created on: Feb 8, 2021
+ *      Author: Family
+ */
+
+#include "Complex.h"
+
+Complex::Complex() {
+	// TODO Auto-generated constructor stub
+
+}
+
+Complex::~Complex() {
+	// TODO Auto-generated destructor stub
+}
+

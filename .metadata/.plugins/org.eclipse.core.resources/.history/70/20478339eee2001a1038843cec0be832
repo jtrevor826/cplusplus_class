@@ -1,0 +1,59 @@
+/*
+ * Planet.cpp
+ *
+ *  Created on: Aug 19, 2020
+ *      Author: Family
+ */
+
+#include <string>
+#include <cstdio>
+#include "Planet.hpp"
+using namespace std;
+
+Planet::Planet(double positionx,double positiony,double kg,double velocityx,double velocityy, string name){
+	posx=positionx;
+	posy=positiony;
+	mass= kg;
+	velx=velocityx;
+	vely=velocityy;
+	this->name=name;
+
+}
+
+Planet::Planet(){
+	posx=0;
+	posy=0;
+	mass= 0;
+	velx=0;
+	vely=0;
+	name="unknown";
+}
+
+string Planet::getName(){
+	return name;
+}
+
+void Planet::setName(string name){
+	this->name=name;
+}
+
+double Planet::getPosX(){
+	return posx;
+}
+
+double Planet::getPosY(){
+	return posy;
+}
+
+void Planet::setPos(double newPosX, double newPosY){
+	posx=newPosX;
+	posy=newPosY;
+}
+
+double Planet::getMass(){
+	return mass;
+}
+
+void Planet::setMass(double newMass){
+	mass=newMass;
+}

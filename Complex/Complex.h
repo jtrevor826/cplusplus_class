@@ -1,0 +1,126 @@
+/*
+ * Complex.h
+ *
+ *  Created on: Feb 8, 2021
+ *      Author: Family
+ */
+
+#include <string>
+#include <cmath>
+using namespace std;
+#ifndef COMPLEX_H_
+#define COMPLEX_H_
+
+class Complex{
+ private:
+ double real,
+        img;
+
+public:
+  Complex(){
+    real= 0.0;
+    img= 0.0;
+  }
+  Complex(double r, double i){
+    real=r;
+    img=i;
+  }
+
+  Complex(const Complex& o){
+   real = o.real;
+    img = o.img;
+  }
+
+  double getReal(){
+    return real;
+  }
+
+  double getImaginary(){
+    return img;
+  }
+
+// Complex *get(){
+//    return new Complex(this);
+//  }
+
+  void setReal(double r){
+    real=r;
+  }
+
+  void setImaginary(double i){
+    img=i;
+  }
+
+  void set(double r, double i){
+    real=r;
+    img=i;
+  }
+
+  Complex operator+(const Complex& rhs){
+    double r=real+rhs.real;
+    double i = img+rhs.img;
+    return Complex(r,i);
+  }
+
+  Complex operator+(double rhs){
+    double r=real+rhs;
+    return Complex(r,img);
+  }
+
+  Complex operator-(const Complex& rhs){
+    double r=real-rhs.real;
+    double i = img-rhs.img;
+    return Complex(r,i);
+  }
+
+  Complex operator-(double rhs){
+    double r=real-rhs;
+    return Complex(r,img);
+  }
+
+  Complex operator*(const Complex& rhs){
+    double r=real*rhs.real-img*rhs.img;
+    double i = real*rhs.img+img*rhs.real;
+    return Complex(r,i);
+  }
+
+  Complex operator*(double rhs){
+    double r = real*rhs;
+    double i = img*rhs;
+    return Complex(r,i);
+  }
+
+  Complex operator/(const Complex& rhs){
+	double r,
+	       i;
+    if (rhs.real !=0 || rhs.img != 0){
+      r = (real*rhs.real+img*rhs.img)/(rhs.real*rhs.real+rhs.img*rhs.img);
+      i = (img*rhs.real-real*rhs.img)/(rhs.real*rhs.real+rhs.img*rhs.img);
+    } else {
+      r = NAN;
+      i = NAN;
+    }
+    return Complex(r,i);
+  }
+
+  Complex operator/(double rhs){
+	double r,
+		   i;
+    if (rhs != 0){
+      r = real/rhs;
+      i = img/rhs;
+    } else {
+      r = NAN;
+      i = NAN;
+    }
+    return Complex(r,i);
+  }//*/
+
+  string toString(){
+    char buffer[100];
+    sprintf(buffer,"%g+%gi",real,img);
+    return string(buffer);
+  }
+};
+
+#endif /* COMPLEX_H_ */

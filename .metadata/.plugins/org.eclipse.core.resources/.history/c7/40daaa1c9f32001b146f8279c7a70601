@@ -1,0 +1,31 @@
+//============================================================================
+// Name        : MyProject.cpp
+// Author      : Trevor
+// Version     :
+// Copyright   :
+// Description : Good description
+//============================================================================
+
+#include <iostream>
+#include <fstream>
+#include "planet.hpp"
+#include "SolarSys.hpp"
+using namespace std;
+
+int main()
+{
+	ofstream outFile;
+	outFile.open("solarsystemresults.csv");
+    SolarSys testSolarSys = SolarSys("test");
+    testSolarSys.setCentralBody(Planet(1,2,3,4,5,"Important Planet"));
+    testSolarSys.addSatellite(Planet(42,42,42,42,42,"42 Planet"));
+    testSolarSys.addSatellite(Planet(0,0,3,0,0,"hi"));
+    outFile << testSolarSys.toCsv(true);
+    for (int i = 0; i<5; i++){
+    testSolarSys.getGravity();
+    testSolarSys.updatePosition();
+    cout << testSolarSys.toString();
+    outFile << testSolarSys.toCsv(false);
+    }
+    outFile.close();
+}

@@ -1,0 +1,103 @@
+#include "SolarSys.hpp"
+#include <cmath>
+#include <iostream>
+using namespace std;
+#define PI 3.14159265358979323846  /* pi */
+
+SolarSys::SolarSys()
+{
+    Central = Planet();
+    timeInterval=1;
+    name = "unknown";
+}
+
+SolarSys::SolarSys(string name)
+{
+    Central = Planet();
+    timeInterval=1;
+    this->name = name;
+}
+
+SolarSys::~SolarSys()
+{
+    //dtor
+}
+
+void SolarSys::getGravity(){
+    double bigGM = Central.getMass()*(6.674e-11);
+    double dx, dy, dist2;
+    dx = 0;
+    dy = 0;
+    dist2 = 0;
+    cout << "GG " << Satellite.size() << endl;
+    for (unsigned int i=0; i < Satellite.size(); i++){
+    	cout << dx << endl;
+    	cout << dy << endl;
+    	cout << Satellite.at(i).getPositionX() << endl;
+    	cout << Satellite.at(i).getPositionY() << endl;
+        dy=Satellite.at(i).getPositionY()-Central.getPositionY();
+        cout << i << " " << dx << " " << dy;
+        dist2=dx*dx+dy*dy;
+        if (!(abs(dist2)<0.000001)){
+            forceG[i]=bigGM*Satellite.at(i).getMass()/dist2;
+        }
+    }
+}
+
+void SolarSys::updatePosition(){
+	double angle;
+	double acceleration;
+	for (unsigned int i=0; i < Satellite.size(); i++){
+		if (!(abs(Satellite.at(i).getMass())<0.000001)){
+			if (!(abs(Satellite.at(i).getPositionX()-Central.getPositionX())<0.000001)){
+				angle = atan((Satellite.at(i).getPositionY()-Central.getPositionY())/(Satellite.at(i).getPositionX()-Central.getPositionX()));
+				if (Satellite.at(i).getPositionX()-Central.getPositionX()<0){
+				    angle += PI;
+				}
+			}
+			else{
+				if (Satellite.at(i).getPositionY()-Central.getPositionY()>0){
+					angle=PI/2;
+				}
+				else{
+					angle=-PI/2;
+				}
+			}
+			acceleration=forceG[i]/Satellite.at(i).getMass();
+			Satellite.at(i).setVelocity(Satellite.at(i).getVelocityX()+acceleration*cos(angle)*timeInterval,Satellite.at(i).getVelocityY()+acceleration*sin(angle)*timeInterval);
+			Satellite.at(i).setPosition(Satellite.at(i).getPositionX()+Satellite.at(i).getVelocityX()*timeInterval,Satellite.at(i).getPositionY()+Satellite.at(i).getVelocityY()*timeInterval);
+		}
+	}
+}
+
+void SolarSys::addSatellite(Planet body){
+	Satellite.push_back(body);
+}
+
+void SolarSys::removeSatellite(string planetName){
+	for (unsigned int i=0; i<Satellite.size(); i++){
+	    if (Satellite.at(i).getName()==planetName){
+	    	Satellite.erase(Satellite.begin()+i);
+	    	break;
+	    }
+	}
+}
+
+void SolarSys::setCentralBody(Planet newCentralBody){
+	Central = newCentralBody;
+}
+
+void SolarSys::setInterval(double interval){
+	timeInterval=interval;
+}
+
+string SolarSys::toString(){
+	string output="Solar System: " + name + "  at Time: ";
+	//todo: add timestamp to description
+	output +="\n";
+	output += Central.toString();
+	for (unsigned int i = 0; i < Satellite.size(); i++){
+		output += "  " + Satellite.at(i).toString();
+	}
+	return output;
+}

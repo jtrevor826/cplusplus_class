@@ -1,0 +1,293 @@
+//============================================================================
+// Name        : MyProject.cpp
+// Author      : Trevor
+// Version     :
+// Copyright   :
+// Description : Good description
+//============================================================================
+
+/*
+ * GLUT Shapes Demo
+ *
+ * Written by Nigel Stewart November 2003
+ *
+ * This program is test harness for the sphere, cone
+ * and torus shapes in GLUT.
+ *
+ * Spinning wireframe and smooth shaded shapes are
+ * displayed until the ESC or q key is pressed.  The
+ * number of geometry stacks and slices can be adjusted
+ * using the + and - keys.
+ */
+
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
+
+#include <math.h>
+#include <stdio.h>
+#include <iostream>
+#include <stdlib.h>
+#include <vector>
+#include <chrono>
+#include <thread>
+#include "Planet.hpp"
+#include "SolarSys.hpp"
+
+struct Position{
+    double x;
+    double y;
+};
+SolarSys  mars;
+double marsRadius =3.39e6; //radius in meters
+Planet phobos,
+       deimos;
+double const LIMIT =35e6;
+double const PI=3.14159265358979;
+double delta;
+const int POINT_LIMIT=120;
+const int DEIMOS_LIMIT =620;
+int cycle=0;
+int deimosCycle=0;
+int valid=-1;
+int deimosValid=-1;
+struct Position pointsPhobos[POINT_LIMIT],
+                pointsDeimos[DEIMOS_LIMIT],
+                pointsMars[20];
+
+
+/* GLUT callback Handlers */
+/*
+static void resize(int width, int height)
+{
+    const float ar = (float) width / (float) height;
+
+    glViewport(0, 0, width, height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glFrustum(-ar, ar, -1.0, 1.0, 2.0, 100.0);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity() ;
+
+}
+*/
+static void display(void)
+{
+    Position grid[20];
+    double deltaAngle = PI/10;
+
+    for(int i =0; i < 20; i++){
+        pointsMars[i].x= (mars.Central.getPositionX()+cos(i*deltaAngle)*marsRadius)/LIMIT;
+        pointsMars[i].y= (mars.Central.getPositionY()+sin(i*deltaAngle)*marsRadius)/LIMIT;
+    }
+
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glPushMatrix();
+
+    double delta = PI/10.0;
+    for(int r=0; r<20; r++){
+        grid[r].x= cos(r*delta)*1000000./LIMIT;
+        grid[r].y= sin(r*delta)*1000000./LIMIT;
+    }
+    //grid
+    glPointSize(0.05f);
+    glColor3f(0.2f, 0.2f,0.2f);
+    glBegin(GL_LINES);
+        glVertex2f(-1.0f,0.f);
+        glVertex2f(1.0f,0.f);
+    glEnd();
+
+    glBegin(GL_LINES);
+        glVertex2f(0.f,-1.0f);
+        glVertex2f(0.f,1.0f);
+    glEnd();
+
+    for(int t=5; t<40; t+=5){
+        glBegin(GL_LINE_LOOP);
+        for(int i =0; i <20; i++){
+            glVertex2f(grid[i].x*t, grid[i].y*t);
+        }
+        glEnd();
+    }
+
+    glColor3f(1.0f,0.f,0.f);
+    //central planet plot
+    glPointSize(0.50f);
+    glBegin(GL_POLYGON);
+    for (int i =0; i<20; i++){
+        glVertex2f(pointsMars[i].x, pointsMars[i].y);
+    }
+    glEnd();
+/*
+    glColor3f(0.8f, 0.0f, 0.0f);
+    glBegin(GL_LINE_LOOP);
+    for (int i =0; i<20; i++){
+        glVertex2f(pointsMars[i].x, pointsMars[i].y);
+    }
+    glEnd();
+*/
+    //satellite plots
+    pointsPhobos[cycle].x=mars.Satellite.at(0).getPositionX()/LIMIT;
+    pointsPhobos[cycle].y=mars.Satellite.at(0).getPositionY()/LIMIT;
+    if (valid<POINT_LIMIT){
+        valid++;
+    } else{
+        valid =POINT_LIMIT;
+    }
+
+    if(deimosValid < DEIMOS_LIMIT){
+        deimosValid++;
+    }else{
+        deimosValid= DEIMOS_LIMIT;
+    }
+
+    //cout <<pointsPhobos[cycle].x<<", "<<pointsPhobos[cycle].y<<endl;
+    glPointSize(.5);
+    for (int i=0; i< valid; i++){
+    glBegin(GL_POINTS);
+        glColor3f(0.0f, 1.0f, 0.0f);
+        glVertex2f(pointsPhobos[i].x, pointsPhobos[i].y);
+    glEnd();
+    }
+    glPointSize(2.);
+    glBegin(GL_POINTS);
+        glColor3f(1.0f, 1.0f, 1.0f);
+        glVertex2f(pointsPhobos[cycle].x, pointsPhobos[cycle].y);
+    glEnd();
+
+
+    pointsDeimos[deimosCycle].x=mars.Satellite.at(1).getPositionX()/LIMIT;
+    pointsDeimos[deimosCycle].y=mars.Satellite.at(1).getPositionY()/LIMIT;
+    glPointSize(.2f);
+    for(int j=0; j <deimosValid; j++){
+    glBegin(GL_POINTS);
+        glColor3f(0.0f, 0.0f, 1.0f);
+        glVertex2f(pointsDeimos[j].x, pointsDeimos[j].y );
+    glEnd();
+    }
+     glPointSize(2.f);
+    glBegin(GL_POINTS);
+        glColor3f(1.0f, 1.0f, 1.0f);
+        glVertex2f(pointsDeimos[deimosCycle].x, pointsDeimos[deimosCycle].y );
+    glEnd();
+
+    glPopMatrix();
+    glutSwapBuffers();
+    mars.updatePosition();
+    cycle=(cycle+1)%POINT_LIMIT;
+    deimosCycle=(deimosCycle+1)%(DEIMOS_LIMIT);
+    Sleep(25);
+}
+
+
+static void key(unsigned char key, int x, int y)
+{
+    switch (key)
+    {
+    case '+':
+        mars.Satellite.at(0).setVelocity(mars.Satellite.at(0).getVelocityX()*1.1,mars.Satellite.at(0).getVelocityY()*1.1);
+        mars.Satellite.at(1).setVelocity(mars.Satellite.at(1).getVelocityX()*1.1,mars.Satellite.at(1).getVelocityY()*1.1);
+        break;
+
+    case '-':
+        mars.Satellite.at(0).setVelocity(mars.Satellite.at(0).getVelocityX()/1.1,mars.Satellite.at(0).getVelocityY()/1.1);
+        mars.Satellite.at(1).setVelocity(mars.Satellite.at(1).getVelocityX()/1.1,mars.Satellite.at(1).getVelocityY()/1.1);
+        break;
+        case 'c':
+        case 'C':
+
+            break;
+        case 27 :
+        case 'q':
+            exit(0);
+            break;
+        case 'w':
+            mars.Central.setPosition(mars.Central.getPositionX(),mars.Central.getPositionY()+100000);
+            break;
+        case 's':
+            mars.Central.setPosition(mars.Central.getPositionX(),mars.Central.getPositionY()-100000);
+            break;
+        case 'a':
+            mars.Central.setPosition(mars.Central.getPositionX()-100000,mars.Central.getPositionY());
+            break;
+        case 'd':
+            mars.Central.setPosition(mars.Central.getPositionX()+100000,mars.Central.getPositionY());
+            break;
+    }
+
+    glutPostRedisplay();
+}
+
+static void idle(void)
+{
+    glutPostRedisplay();
+}
+/*
+const GLfloat light_ambient[]  = { 0.0f, 0.0f, 0.0f, 1.0f };
+const GLfloat light_diffuse[]  = { 1.0f, 1.0f, 1.0f, 1.0f };
+const GLfloat light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+const GLfloat light_position[] = { 2.0f, 5.0f, 5.0f, 0.0f };
+
+const GLfloat mat_ambient[]    = { 0.7f, 0.7f, 0.7f, 1.0f };
+const GLfloat mat_diffuse[]    = { 0.8f, 0.8f, 0.8f, 1.0f };
+const GLfloat mat_specular[]   = { 1.0f, 1.0f, 1.0f, 1.0f };
+const GLfloat high_shininess[] = { 100.0f };
+*/
+/* Program entry point */
+
+int main(int argc, char *argv[])
+{
+
+    mars = SolarSys("Mars System");
+    Planet cb = Planet(0.0,0.0,6.4171E23,0.0,0.0,"Mars");
+    phobos = Planet(0.0, 9.378E6 ,10.6E15,2138.0,0.0,"Phobos");
+    deimos = Planet(0.0,23.459E6,2.5E15,1466.0,0.0,"Deimos");
+    mars.setCentralBody(cb);
+    mars.addSatellite(phobos);
+    mars.addSatellite(deimos);
+    mars.setInterval(240);
+
+
+    glutInit(&argc, argv);
+    glutInitWindowSize(600,600);
+    //glutInitWindowPosition(10,10);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
+
+    glutCreateWindow("Solar System");
+
+    //glutReshapeFunc(resize);
+    glutDisplayFunc(display);
+    glutKeyboardFunc(key);
+    glutIdleFunc(idle);
+/*
+    glClearColor(1,1,1,1);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+
+    glEnable(GL_LIGHT0);
+    glEnable(GL_NORMALIZE);
+    glEnable(GL_COLOR_MATERIAL);
+    glEnable(GL_LIGHTING);
+
+    glLightfv(GL_LIGHT0, GL_AMBIENT,  light_ambient);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE,  light_diffuse);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+    glMaterialfv(GL_FRONT, GL_AMBIENT,   mat_ambient);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE,   mat_diffuse);
+    glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
+*/
+    delta = 600.0/LIMIT;
+    glutMainLoop();
+
+    return EXIT_SUCCESS;
+}

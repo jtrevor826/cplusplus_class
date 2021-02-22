@@ -1,0 +1,53 @@
+/*
+ * Planet.hpp
+ *
+ *  Created on: Aug 19, 2020
+ *      Author: Family
+ */
+
+#ifndef PLANET_HPP_
+#define PLANET_HPP_
+#include <string>
+using namespace std;
+
+class Planet{
+	private:
+	struct Position{
+	    double x;
+	    double y;
+	};
+	double mass;
+	double posx;
+	double posy;
+	double velx;
+	double vely;
+	std::string name;
+	int POINT_LIMIT;
+	int cycle;
+	struct Position *points[];
+	int valid;
+
+	public:
+	Planet();
+	Planet(double positionx,double positiony,double kg,double velocityx,double velocityy, std::string nm, int point_lim);
+	Planet(const Planet& ori);
+	string getName();
+	void setName(std::string name);
+	double getPositionX();
+	double getPositionY();
+	void setPosition(double newPosX, double newPosY);
+	double getMass();
+	void setMass(double newMass);
+	double getVelocityX();
+	double getVelocityY();
+	void setVelocity(double newVelX, double newVelY);
+	//void addPoint();
+	//struct Position getPoint(int num);
+    int getCycle();
+	int getValid();
+
+	std::string toString();
+	std::string toCsv();
+};
+
+#endif /* PLANET_HPP_ */

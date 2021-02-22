@@ -1,0 +1,4 @@
+09:31:16 **** Incremental Build of configuration Debug for project Calculator ****
+Info: Internal Builder is used for build
+g++ -o Calculator.exe main.o -lopengl32 -lglu32 -lfreeglut 
+Info: Nothing to build for Calculator

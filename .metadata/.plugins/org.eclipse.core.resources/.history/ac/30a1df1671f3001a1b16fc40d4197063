@@ -1,0 +1,29 @@
+/*
+ * SolarSys.hpp
+ *
+ *  Created on: Aug 27, 2020
+ *      Author: Family
+ */
+
+#ifndef SOLARSYS_HPP_
+#define SOLARSYS_HPP_
+#include <string>
+#include <cmath>
+#include <vector>
+#include "Planet.hpp"
+using namespace std;
+
+class SolarSys
+{
+    public:
+	    SolarSys();
+        virtual ~SolarSys();
+
+
+
+    private:
+        Planet Central;
+        Vector<Planet> Satelite;
+};
+
+#endif // SOLARSYS_HPP_

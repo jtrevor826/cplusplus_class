@@ -1,0 +1,27 @@
+//============================================================================
+// Name        : MyProject.cpp
+// Author      : Trevor
+// Version     :
+// Copyright   :
+// Description : Good description
+//============================================================================
+
+#include <iostream>
+#include "planet.hpp"
+#include "SolarSys.hpp"
+using namespace std;
+
+int main()
+{
+    SolarSys testSolarSys = SolarSys("test");
+    testSolarSys.setCentralBody(Planet(1,2,3,4,5,"Important Planet"));
+    testSolarSys.addSatellite(Planet(42,42,42,42,42,"42 Planet"));
+    testSolarSys.addSatellite(Planet(0,0,3,0,0,"hi"));
+    cout << testSolarSys.toString() << endl << endl;
+    cout << "1" << endl;
+    testSolarSys.getGravity();
+    cout << "2" << endl;
+    testSolarSys.updatePosition();
+    cout << "3" << endl;
+    cout << testSolarSys.toString();
+}

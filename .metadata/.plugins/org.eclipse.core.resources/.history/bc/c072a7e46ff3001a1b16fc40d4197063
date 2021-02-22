@@ -1,0 +1,29 @@
+/*
+ * SolarSys.hpp
+ *
+ *  Created on: Aug 27, 2020
+ *      Author: Family
+ */
+
+#ifndef SOLARSYS_HPP_
+#define SOLARSYS_HPP_
+#include <string>
+#include <cmath>
+#include "Planet.hpp"
+using namespace std;
+
+class SolarSys
+{
+    public:
+        static unsigned const MAX_SATELITES =10;
+        SolarSys();
+        virtual ~SolarSys();
+
+
+
+    private:
+        Planet Central;
+        Planet Satelite[MAX_SATELITES];
+};
+
+#endif // SOLARSYS_HPP_
